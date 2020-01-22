@@ -1,0 +1,17 @@
+{
+  "common": {
+    "version": "Version",
+    "invalid_configuration": "Invalid configuration",
+    "show_warning": "Show Warning"
+  },
+  "config": {
+    "optional": "Optional",
+    "name": "Title",
+    "time_entity": "Time Entity",
+    "mode_entity": "Mode Entity",
+    "duration_entity": "Duration Entity",
+    "invalid_configuration": "Invalid configuration",
+    "required_entity_missing": "A required entity %entity% is not set",
+    "required_entity_not_found": "A required entity %entity% is not found"
+  }
+}
