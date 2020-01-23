@@ -209,7 +209,6 @@ export class LightalarmCard extends LitElement {
       }
       .lightalarm-wrapper .alarm-time-decorator {
         width: 100%;
-        height: 100%;
         fill: var(--paper-item-icon-color, --text-color);
         opacity: 0.3;
       }
