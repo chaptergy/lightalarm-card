@@ -4,7 +4,6 @@ import {
   HomeAssistant,
   hasConfigOrEntityChanged,
   LovelaceCardEditor,
-  getLovelace,
   computeStateName,
   forwardHaptic,
   computeRTLDirection,
@@ -19,7 +18,7 @@ import { localize } from './localize/localize';
 
 /* eslint no-console: 0 */
 console.info(
-  `%c  LIGHTALARM-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
+  `%c  LIGHTALARM-CARD \n%c  Version ${CARD_VERSION}   `,
   'color: orange; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
@@ -38,9 +37,7 @@ export class LightalarmCard extends LitElement {
   @property() private _config?: LightalarmCardConfig;
 
   public setConfig(config: LightalarmCardConfig): void {
-    if (!config) {
-      throw new Error(localize('config.invalid_configuration'));
-    }
+    if (!config) throw new Error(localize('config.invalid_configuration'));
 
     if (!config.time_entity) throw new Error(localize('config.required_entity_missing', '%entity%', localize('config.time_entity')));
     if (!config.mode_entity) throw new Error(localize('config.required_entity_missing', '%entity%', localize('config.mode_entity')));
@@ -51,7 +48,18 @@ export class LightalarmCard extends LitElement {
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps, false);
+    const shouldUpdate = hasConfigOrEntityChanged(this, changedProps, false);
+    // Only check if it doesn't update anyway
+    if (!shouldUpdate) {
+      const changedHass: HomeAssistant = changedProps['hass'];
+      return (
+        !changedHass || // hass is not set
+        changedHass.states[this._config!.time_entity] !== this.hass!.states[this._config!.time_entity] ||
+        changedHass.states[this._config!.mode_entity] !== this.hass!.states[this._config!.mode_entity] ||
+        changedHass.states[this._config!.duration_entity] !== this.hass!.states[this._config!.duration_entity]
+      );
+    }
+    return shouldUpdate;
   }
 
   protected render(): TemplateResult | void {
@@ -81,7 +89,7 @@ export class LightalarmCard extends LitElement {
     }
 
     return html`
-      <ha-card .header=${this._config.name} tabindex="0" aria-label=${`Boilerplate: ${this._config.time_entity}`}>
+      <ha-card .header=${this._config.name} tabindex="0">
         <div class="lightalarm-wrapper">
           <svg viewBox="0 0 24 24" class="alarm-time-decorator">
             <path

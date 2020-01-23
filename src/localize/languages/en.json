@@ -1,9 +1,4 @@
 {
-  "common": {
-    "version": "Version",
-    "invalid_configuration": "Invalid configuration",
-    "show_warning": "Show Warning"
-  },
   "config": {
     "optional": "Optional",
     "name": "Title",
