@@ -15,10 +15,8 @@ It displays three entities: an `input_datetime` as the time, an `input_select` a
 
 1. Install the [Home Assistant Community Store](https://github.com/custom-components/hacs) if you do not have it already.
 2. Go to the Community Store.
-3. Go to the _Settings_ tab.
-4. Add the custom repository `chaptergy/lightalarm-card` with category _plugin_.
-5. Wait a moment and when the newly added repository shows up, click on it.
-6. Press Install.
+3. Click on the _Plugins_ tab.
+4. Search for _Lightalarm Card_ and install it.
 
 #### Manual Installation
 
