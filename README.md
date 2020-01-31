@@ -9,7 +9,7 @@ It displays three entities: an `input_datetime` as the time, an `input_select` a
 
 ## Installation
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
 #### HACS
 
@@ -28,6 +28,15 @@ resources:
   - url: /local/lightalarm-card.js
     type: module
 ```
+## Options
+
+| Name            | Type     | Requirement  | Description                                  
+| --------------- | -------- | ------------ | -------------------------------------------- 
+| type            | string   | **Required** | `custom:lightalarm-card`                     
+| name            | string   | **Optional** | Card title                                   
+| time_entity     | string   | **Required** | `input_datetime` entity to select alarm time 
+| mode_entity     | string   | **Required** | `input_select` entity to select alarm mode   
+| duration_entity | string   | **Required** | `input_number` entity to set fade duration   
 
 ## Lightalarm Logic
 
