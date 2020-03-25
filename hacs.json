@@ -1,4 +1,5 @@
 {
   "name": "Lightalarm Card",
-  "filename": "dist/lightalarm-card.js"
+  "content_in_root": false,
+  "filename": "lightalarm-card.js"
 }
