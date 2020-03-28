@@ -7,6 +7,7 @@
     "duration_entity": "Duration Entity",
     "invalid_configuration": "Invalid configuration",
     "required_entity_missing": "A required entity %entity% is not set",
-    "required_entity_not_found": "A required entity %entity% is not found"
+    "required_entity_not_found": "A required entity %entity% is not found",
+    "force_native_time_picker_for_device": "Force the native time picker in this browser"
   }
 }

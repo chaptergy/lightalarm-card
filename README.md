@@ -3,7 +3,10 @@
 This card provides a frontend for entities being used to control a light alarm.  
 **It does not implement any lightalarm logic!** For more information on how I implemented the logic skip to [Lightalarm Logic](#lightalarm-logic)
 
+If you have an **iOS Device** and would like to use the builtin time picker, have a look at [Force Native Timepicker](#force-native-timepicker).
+
 ![](https://raw.githubusercontent.com/chaptergy/lightalarm-card/master/img/screenshot1.png)
+![](https://raw.githubusercontent.com/chaptergy/lightalarm-card/master/img/screenshot2.png)
 
 It displays three entities: an `input_datetime` as the time, an `input_select` as the alarm mode and an `input_number` as the fade duration the alarm should take.
 
@@ -17,6 +20,7 @@ It displays three entities: an `input_datetime` as the time, an `input_select` a
 2. Go to the Community Store.
 3. Click on the _Plugins_ tab.
 4. Search for _Lightalarm Card_ and install it.
+5. HACS will ask you to add it to your lovelace, click on yes.
 
 #### Manual Installation
 
@@ -28,15 +32,23 @@ resources:
   - url: /local/lightalarm-card.js
     type: module
 ```
+
 ## Options
 
-| Name            | Type     | Requirement  | Description                                  
-| --------------- | -------- | ------------ | -------------------------------------------- 
-| type            | string   | **Required** | `custom:lightalarm-card`                     
-| name            | string   | **Optional** | Card title                                   
-| time_entity     | string   | **Required** | `input_datetime` entity to select alarm time 
-| mode_entity     | string   | **Required** | `input_select` entity to select alarm mode   
-| duration_entity | string   | **Required** | `input_number` entity to set fade duration   
+| Name            | Type   | Requirement  | Description                                  |
+| --------------- | ------ | ------------ | -------------------------------------------- |
+| type            | string | **Required** | `custom:lightalarm-card`                     |
+| name            | string | **Optional** | Card title                                   |
+| time_entity     | string | **Required** | `input_datetime` entity to select alarm time |
+| mode_entity     | string | **Required** | `input_select` entity to select alarm mode   |
+| duration_entity | string | **Required** | `input_number` entity to set fade duration   |
+| duration_entity | string | **Required** | `input_number` entity to set fade duration   |
+
+## Force Native Timepicker
+
+In the visual editor of the lovalace card, you have an additional option to _Force use of the native time picker_. By default when tapping the alarm time, the card tries to open the native timepicker popup, and but also falls back to two input fields, for browsers, who don't have a popup time picker interface. This works very well on Android devices, however on iOS devices, the focus is overwritten by the fallback input fields, hiding the time picker right away. If you are certain, that your browser offers a better timepicker, you can switch this switch on, to enforce using the browser native time picker. This setting will be saved in the local storage (similar to cookies), so it can be a different value per separate browser instance.
+
+![](https://raw.githubusercontent.com/chaptergy/lightalarm-card/master/img/screenshot_native-timepicker-ios.jpg)
 
 ## Lightalarm Logic
 
@@ -63,16 +75,27 @@ input_number:
 input_select:
   lightalarm_options:
     name: Alarm Mode
-    initial: Workdays When Present
+    initial: 'Workdays When Present'
+    icon: mdi:alarm-plus
     options:
-      - Off
-      - Workdays When Present
-      - Workdays
-      - Once Only
-      - Every Day
+      - 'Off'
+      - 'Workdays When Present'
+      - 'Workdays'
+      - 'Once Only'
+      - 'Every Day'
 ```
 
-Then with these entities we can create a new automation which triggers, when all conditions are met. Add this to your `automation:` section or your `automations.yaml`. What it does, will be explained below.
+Then with these entities we can create a new automation which triggers, when all conditions are met.
+
+But for the following automation to work, you will have to verify, that a `sensor.time` is present, and if it isn't, add tis to your `sensor:` or your `sensors.yaml`:
+
+```yaml
+- platform: time_date
+  display_options:
+    - 'time'
+```
+
+Add this to your `automation:` section or your `automations.yaml`. What it does, will be explained below.
 
 ```yaml
 - id: lightalarm
@@ -90,34 +113,34 @@ Then with these entities we can create a new automation which triggers, when all
   condition:
     condition: or
     conditions:
-    - condition: state
-      entity_id: input_select.lightalarm_options
-      state: Every Day
-    - condition: state
-      entity_id: input_select.lightalarm_options
-      state: Once Only
-    - condition: and
-      conditions:
       - condition: state
         entity_id: input_select.lightalarm_options
-        state: Workdays
-      - condition: template
-        value_template: '{{ now().weekday() < 5 }}'
-   - condition: and
-     conditions:
-     - condition: state
-       entity_id: input_select.lightalarm_options
-       state: Workdays When Present
-     - condition: template
-       value_template: '{{ now().weekday() < 5 }}'
-     - condition: or
-       conditions:
-       - condition: state
-         entity_id: person.chaptergy
-         state: home
-       - condition: state
-         entity_id: person.other_person
-         state: home
+        state: 'Every Day'
+      - condition: state
+        entity_id: input_select.lightalarm_options
+        state: 'Once Only'
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: input_select.lightalarm_options
+            state: 'Workdays'
+          - condition: template
+            value_template: '{{ now().weekday() < 5 }}'
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: input_select.lightalarm_options
+            state: 'Workdays When Present'
+          - condition: template
+            value_template: '{{ now().weekday() < 5 }}'
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: person.chaptergy
+                state: home
+              - condition: state
+                entity_id: person.other_person
+                state: home
 
   action:
     service: script.trigger_lightalarm

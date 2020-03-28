@@ -45,6 +45,10 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     return '';
   }
 
+  get _force_native_time_picker_for_device(): boolean {
+    return localStorage.getItem('lightalarmCard.forceNativePicker') === 'true';
+  }
+
   protected render(): TemplateResult | void {
     if (!this.hass) {
       return html``;
@@ -64,41 +68,48 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
           @value-changed=${this._valueChanged}
         ></paper-input>
 
-        <div class="indent">
-          <paper-dropdown-menu label="${localize('config.time_entity')}" @value-changed=${this._valueChanged} .configValue=${'time_entity'}>
-            <paper-listbox slot="dropdown-content" .selected=${time_entities.indexOf(this._time_entity)}>
-              ${time_entities.map((entity) => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
-          <br />
-          <paper-dropdown-menu label="${localize('config.mode_entity')}" @value-changed=${this._valueChanged} .configValue=${'mode_entity'}>
-            <paper-listbox slot="dropdown-content" .selected=${mode_entities.indexOf(this._mode_entity)}>
-              ${mode_entities.map((entity) => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
-          <br />
-          <paper-dropdown-menu
-            label="${localize('config.duration_entity')}"
-            @value-changed=${this._valueChanged}
-            .configValue=${'duration_entity'}
-          >
-            <paper-listbox slot="dropdown-content" .selected=${duration_entities.indexOf(this._duration_entity)}>
-              ${duration_entities.map((entity) => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
-        </div>
+        <paper-dropdown-menu label="${localize('config.time_entity')}" @value-changed=${this._valueChanged} .configValue=${'time_entity'}>
+          <paper-listbox slot="dropdown-content" .selected=${time_entities.indexOf(this._time_entity)}>
+            ${time_entities.map((entity) => {
+              return html`
+                <paper-item>${entity}</paper-item>
+              `;
+            })}
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <br />
+        <paper-dropdown-menu label="${localize('config.mode_entity')}" @value-changed=${this._valueChanged} .configValue=${'mode_entity'}>
+          <paper-listbox slot="dropdown-content" .selected=${mode_entities.indexOf(this._mode_entity)}>
+            ${mode_entities.map((entity) => {
+              return html`
+                <paper-item>${entity}</paper-item>
+              `;
+            })}
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <br />
+        <paper-dropdown-menu
+          label="${localize('config.duration_entity')}"
+          @value-changed=${this._valueChanged}
+          .configValue=${'duration_entity'}
+        >
+          <paper-listbox slot="dropdown-content" .selected=${duration_entities.indexOf(this._duration_entity)}>
+            ${duration_entities.map((entity) => {
+              return html`
+                <paper-item>${entity}</paper-item>
+              `;
+            })}
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <br />
+        <br />
+        <ha-switch
+          .checked=${this._force_native_time_picker_for_device}
+          .configValue=${'force_native_time_picker_for_device'}
+          @change=${this._valueChanged}
+        >
+          ${localize('config.force_native_time_picker_for_device')}
+        </ha-switch>
       </div>
     `;
   }
@@ -112,7 +123,9 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
       return;
     }
     if (target.configValue) {
-      if (target.value === '') {
+      if (target.configValue === 'force_native_time_picker_for_device') {
+        localStorage.setItem('lightalarmCard.forceNativePicker', target.checked ? 'true' : 'false');
+      } else if (target.value === '') {
         delete this._config[target.configValue];
       } else {
         this._config = {
