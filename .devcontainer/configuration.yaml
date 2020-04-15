@@ -1,0 +1,103 @@
+default_config:
+logger:
+  default: error
+
+lovelace:
+  mode: yaml
+
+input_datetime:
+  lightalarm_time:
+    name: Alarm Time
+    has_date: false
+    has_time: true
+
+input_number:
+  lightalarm_duration:
+    name: Alarm Duration
+    unit_of_measurement: min
+    initial: 12
+    min: 0
+    max: 120
+    step: 1
+
+input_select:
+  lightalarm_options:
+    name: Alarm Mode
+    initial: 'Workdays When Present'
+    icon: mdi:alarm-plus
+    options:
+      - 'Off'
+      - 'Workdays When Present'
+      - 'Workdays'
+      - 'Once Only'
+      - 'Every Day'
+
+sensor:
+  - platform: time_date
+    display_options:
+      - 'time'
+
+automation:
+  - id: lightalarm
+    alias: Lightalarm
+    hide_entity: false
+    trigger:
+      platform: template
+      value_template: "{% set currentTimeInMinutes = ((states('sensor.time')[:2] |
+        float) * 60) + (states('sensor.time')[3:5] | float) - (states('sensor.time')
+        | float) %} {% set alarmTimeInMinutes = ((states('input_datetime.lightalarm_time')[:2]
+        | float) * 60) + (states('input_datetime.lightalarm_time')[3:5] | float) -
+        (states('input_number.lightalarm_duration') | float) %} {{ currentTimeInMinutes
+        == alarmTimeInMinutes }}"
+
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: input_select.lightalarm_options
+          state: 'Every Day'
+        - condition: state
+          entity_id: input_select.lightalarm_options
+          state: 'Once Only'
+        - condition: and
+          conditions:
+            - condition: state
+              entity_id: input_select.lightalarm_options
+              state: 'Workdays'
+            - condition: template
+              value_template: '{{ now().weekday() < 5 }}'
+        - condition: and
+          conditions:
+            - condition: state
+              entity_id: input_select.lightalarm_options
+              state: 'Workdays When Present'
+            - condition: template
+              value_template: '{{ now().weekday() < 5 }}'
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: person.chaptergy
+                  state: home
+                - condition: state
+                  entity_id: person.other_person
+                  state: home
+
+    action:
+      service: script.trigger_lightalarm
+
+script:
+  trigger_lightalarm:
+    alias: Trigger the lightalarm
+    sequence:
+      - service: persistent_notification.create
+        data_template:
+          title: "Lightalarm"
+          message: "Lightalarm started with transition time of {{ states('input_number.lightalarm_duration') }} minutes"
+      - event: lightalarm_triggered
+      - condition: state
+        entity_id: input_select.lightalarm_options
+        state: Once Only
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.lightalarm_options
+          option: Off

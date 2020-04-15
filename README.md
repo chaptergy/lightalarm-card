@@ -1,6 +1,6 @@
 # Lovelace Lightalarm Card
 
-This card provides a frontend for entities being used to control a light alarm.  
+This card provides a frontend for entities being used to control a light alarm.
 **It does not implement any lightalarm logic!** For more information on how I implemented the logic skip to [Lightalarm Logic](#lightalarm-logic)
 
 If you have an **iOS Device** and would like to use the builtin time picker, have a look at [Force Native Timepicker](#force-native-timepicker).
@@ -38,7 +38,7 @@ resources:
 | Name            | Type   | Requirement  | Description                                  |
 | --------------- | ------ | ------------ | -------------------------------------------- |
 | type            | string | **Required** | `custom:lightalarm-card`                     |
-| name            | string | **Optional** | Card title                                   |
+| name            | string | Optional     | Card title                                   |
 | time_entity     | string | **Required** | `input_datetime` entity to select alarm time |
 | mode_entity     | string | **Required** | `input_select` entity to select alarm mode   |
 | duration_entity | string | **Required** | `input_number` entity to set fade duration   |
@@ -95,6 +95,8 @@ But for the following automation to work, you will have to verify, that a `senso
     - 'time'
 ```
 
+I would also recommend excluding the time from `recorder`, so it doesn't spam your history. Check out [the recorder integration page](https://www.home-assistant.io/integrations/recorder/) for more information.
+
 Add this to your `automation:` section or your `automations.yaml`. What it does, will be explained below.
 
 ```yaml
@@ -146,7 +148,7 @@ Add this to your `automation:` section or your `automations.yaml`. What it does,
     service: script.trigger_lightalarm
 ```
 
-The `value_template` value is kind of ugly, however all it does, is converting both the current time als well as the lightalarm time to minutes, subtracts the lightalarm duration from the lightalarm time, and checks if it is equal to the current time.  
+The `value_template` value is kind of ugly, however all it does, is converting both the current time als well as the lightalarm time to minutes, subtracts the lightalarm duration from the lightalarm time, and checks if it is equal to the current time.
 If it is, the other conditions will be checked. If any condition fails, the action will not be executed. Here is a description of what the condition is:
 
 ```
@@ -185,7 +187,7 @@ trigger_lightalarm:
         option: Off
 ```
 
-This script then switches on the lap to full brightness, while the transition property will make it fade in slowly. The duration is converted from minutes to seconds, because the transition expects the number of seconds it should take to transition.  
+This script then switches on the lap to full brightness, while the transition property will make it fade in slowly. The duration is converted from minutes to seconds, because the transition expects the number of seconds it should take to transition.
 Then a custom event `lightalarm_triggered` is fired, so we could create more automations listening for this event, like the bathroom heater switching on. You can remove this line if you do not plan on triggering anything else.
 
 Now the last thing to check is if the mode was set to `Once Only` and if it was, set it to `Off`. A condition in a script exits the script if the condition fails, and the following things are only executed if it succeeds.
