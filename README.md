@@ -55,6 +55,7 @@ In the visual editor of the lovalace card, you have an additional option to _For
 If you do not have your custom lightalarm logic, here is how I implemented mine. Your lamp will need to support the `transition` property for this to work.
 
 Fist you'll need to add three new entities into your `configuration.yaml`:
+(If you set an `initial` for the inputs, it will be set to this value on every Home Assistant restart!)
 
 ```yaml
 input_datetime:
@@ -67,15 +68,13 @@ input_number:
   lightalarm_duration:
     name: Alarm Duration
     unit_of_measurement: min
-    initial: 12
     min: 0
-    max: 120
+    max: 60
     step: 1
 
 input_select:
   lightalarm_options:
     name: Alarm Mode
-    initial: 'Workdays When Present'
     icon: mdi:alarm-plus
     options:
       - 'Off'
