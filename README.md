@@ -42,7 +42,6 @@ resources:
 | time_entity     | string | **Required** | `input_datetime` entity to select alarm time |
 | mode_entity     | string | **Required** | `input_select` entity to select alarm mode   |
 | duration_entity | string | **Required** | `input_number` entity to set fade duration   |
-| duration_entity | string | **Required** | `input_number` entity to set fade duration   |
 
 ## Force Native Timepicker
 
