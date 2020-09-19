@@ -100,7 +100,6 @@ Add this to your `automation:` section or your `automations.yaml`. What it does,
 ```yaml
 - id: lightalarm
   alias: Lightalarm
-  hide_entity: false
   trigger:
     platform: template
     value_template: "{% set currentTimeInMinutes = ((states('sensor.time')[:2] |

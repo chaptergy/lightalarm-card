@@ -1,5 +1,3 @@
-import { ActionConfig } from 'custom-card-helpers';
-
 export interface LightalarmCardConfig {
   type: string;
   name?: string;

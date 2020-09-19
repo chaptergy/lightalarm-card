@@ -3,7 +3,7 @@ logger:
   default: error
 
 lovelace:
-  mode: yaml
+  # mode: yaml
 
 input_datetime:
   lightalarm_time:
@@ -22,7 +22,7 @@ input_number:
 
 input_select:
   lightalarm_options:
-    name: Alarm Mode
+    # name: Alarm Mode
     initial: 'Workdays When Present'
     icon: mdi:alarm-plus
     options:
@@ -40,7 +40,6 @@ sensor:
 automation:
   - id: lightalarm
     alias: Lightalarm
-    hide_entity: false
     trigger:
       platform: template
       value_template: "{% set currentTimeInMinutes = ((states('sensor.time')[:2] |
@@ -91,7 +90,7 @@ script:
     sequence:
       - service: persistent_notification.create
         data_template:
-          title: "Lightalarm"
+          title: 'Lightalarm'
           message: "Lightalarm started with transition time of {{ states('input_number.lightalarm_duration') }} minutes"
       - event: lightalarm_triggered
       - condition: state

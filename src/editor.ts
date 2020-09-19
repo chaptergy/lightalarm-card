@@ -1,13 +1,13 @@
 import { LitElement, html, customElement, property, TemplateResult, CSSResult, css } from 'lit-element';
-import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionConfig } from 'custom-card-helpers';
+import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { LightalarmCardConfig } from './types';
 import { localize } from './localize/localize';
 
 @customElement('lightalarm-card-editor')
 export class LightalarmCardEditor extends LitElement implements LovelaceCardEditor {
-  @property() public hass?: HomeAssistant;
-  @property() private _config?: LightalarmCardConfig;
+  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) private _config?: LightalarmCardConfig;
 
   public setConfig(config: LightalarmCardConfig): void {
     this._config = config;
@@ -55,9 +55,15 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     }
 
     // You can restrict on domain type
-    const time_entities = Object.keys(this.hass.states).filter((eid) => eid.substr(0, eid.indexOf('.')) === 'input_datetime');
-    const mode_entities = Object.keys(this.hass.states).filter((eid) => eid.substr(0, eid.indexOf('.')) === 'input_select');
-    const duration_entities = Object.keys(this.hass.states).filter((eid) => eid.substr(0, eid.indexOf('.')) === 'input_number');
+    const time_entities = Object.keys(this.hass.states).filter(
+      eid => eid.substr(0, eid.indexOf('.')) === 'input_datetime',
+    );
+    const mode_entities = Object.keys(this.hass.states).filter(
+      eid => eid.substr(0, eid.indexOf('.')) === 'input_select',
+    );
+    const duration_entities = Object.keys(this.hass.states).filter(
+      eid => eid.substr(0, eid.indexOf('.')) === 'input_number',
+    );
 
     return html`
       <div class="card-config">
@@ -68,48 +74,56 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
           @value-changed=${this._valueChanged}
         ></paper-input>
 
-        <paper-dropdown-menu label="${localize('config.time_entity')}" @value-changed=${this._valueChanged} .configValue=${'time_entity'}>
-          <paper-listbox slot="dropdown-content" .selected=${time_entities.indexOf(this._time_entity)}>
-            ${time_entities.map((entity) => {
-              return html`
-                <paper-item>${entity}</paper-item>
-              `;
-            })}
-          </paper-listbox>
-        </paper-dropdown-menu>
-        <br />
-        <paper-dropdown-menu label="${localize('config.mode_entity')}" @value-changed=${this._valueChanged} .configValue=${'mode_entity'}>
-          <paper-listbox slot="dropdown-content" .selected=${mode_entities.indexOf(this._mode_entity)}>
-            ${mode_entities.map((entity) => {
-              return html`
-                <paper-item>${entity}</paper-item>
-              `;
-            })}
-          </paper-listbox>
-        </paper-dropdown-menu>
-        <br />
-        <paper-dropdown-menu
-          label="${localize('config.duration_entity')}"
-          @value-changed=${this._valueChanged}
-          .configValue=${'duration_entity'}
-        >
-          <paper-listbox slot="dropdown-content" .selected=${duration_entities.indexOf(this._duration_entity)}>
-            ${duration_entities.map((entity) => {
-              return html`
-                <paper-item>${entity}</paper-item>
-              `;
-            })}
-          </paper-listbox>
-        </paper-dropdown-menu>
-        <br />
+        <div class="indent">
+          <paper-dropdown-menu
+            label="${localize('config.time_entity')}"
+            @value-changed=${this._valueChanged}
+            .configValue=${'time_entity'}
+          >
+            <paper-listbox slot="dropdown-content" .selected=${time_entities.indexOf(this._time_entity)}>
+              ${time_entities.map(entity => {
+                return html`
+                  <paper-item>${entity}</paper-item>
+                `;
+              })}
+            </paper-listbox>
+          </paper-dropdown-menu>
+          <br />
+          <paper-dropdown-menu
+            label="${localize('config.mode_entity')}"
+            @value-changed=${this._valueChanged}
+            .configValue=${'mode_entity'}
+          >
+            <paper-listbox slot="dropdown-content" .selected=${mode_entities.indexOf(this._mode_entity)}>
+              ${mode_entities.map(entity => {
+                return html`
+                  <paper-item>${entity}</paper-item>
+                `;
+              })}
+            </paper-listbox>
+          </paper-dropdown-menu>
+          <br />
+          <paper-dropdown-menu
+            label="${localize('config.duration_entity')}"
+            @value-changed=${this._valueChanged}
+            .configValue=${'duration_entity'}
+          >
+            <paper-listbox slot="dropdown-content" .selected=${duration_entities.indexOf(this._duration_entity)}>
+              ${duration_entities.map(entity => {
+                return html`
+                  <paper-item>${entity}</paper-item>
+                `;
+              })}
+            </paper-listbox>
+          </paper-dropdown-menu>
+        </div>
         <br />
         <ha-switch
           .checked=${this._force_native_time_picker_for_device}
           .configValue=${'force_native_time_picker_for_device'}
           @change=${this._valueChanged}
-        >
-          ${localize('config.force_native_time_picker_for_device')}
-        </ha-switch>
+        ></ha-switch>
+        <span class="switch-label">${localize('config.force_native_time_picker_for_device')}</span>
       </div>
     `;
   }
@@ -141,6 +155,9 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     return css`
       .indent {
         padding-left: 40px;
+      }
+      .switch-label {
+        padding-left: 10px;
       }
     `;
   }
