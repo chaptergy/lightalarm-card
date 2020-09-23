@@ -49,6 +49,10 @@ export class LightalarmCard extends LitElement {
     if (!config.duration_entity)
       throw new Error(localize('config.required_entity_missing', '%entity%', localize('config.duration_entity')));
 
+    (window as any).loadCardHelpers().then(helper => {
+      helper.createRowElement({ type: 'input-select-entity' });
+    });
+
     this.config = config;
   }
 

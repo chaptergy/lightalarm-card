@@ -54,6 +54,10 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
       return html``;
     }
 
+    (window as any).loadCardHelpers().then(helper => {
+      helper.createRowElement({ type: 'input-select-entity' });
+    });
+
     // You can restrict on domain type
     const time_entities = Object.keys(this.hass.states).filter(
       eid => eid.substr(0, eid.indexOf('.')) === 'input_datetime',
