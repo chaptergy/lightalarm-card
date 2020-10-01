@@ -1,0 +1,17 @@
+{
+  "config": {
+    "optional": "Valgfri",
+    "name": "Tittel",
+    "time_entity": "Tidsenhet",
+    "mode_entity": "Modusenhet",
+    "duration_entity": "Varighet Enhet",
+    "invalid_configuration": "Ugyldig konfigurasjon",
+    "required_entity_missing": "En obligatorisk %entity% er ikke angitt",
+    "required_entity_not_found": "En nødvendig enhet %entity% er ikke funnet",
+    "force_native_time_picker_for_device": "Tving den opprinnelige tidsvelgeren i denne nettleseren"
+  },
+  "card": {
+    "alarm_mode": "Alarm Modus",
+    "alarm_duration": "Alarmens varighet"
+  }
+}
