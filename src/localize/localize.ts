@@ -1,8 +1,10 @@
 import * as en from './languages/en.json';
+import * as en from './languages/nb.json';
 // import * as de from './languages/de.json';
 
 var languages = {
   en: en,
+  nb: no,
   // de: de,
 };
 
