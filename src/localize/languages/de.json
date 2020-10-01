@@ -8,7 +8,7 @@
     "invalid_configuration": "Ungültige Konfiguration",
     "required_entity_missing": "Die notwendige Entität %entity% ist nicht gesetzt",
     "required_entity_not_found": "Die notwendige Entität %entity% konnte nicht gefunden werden",
-    "force_native_time_picker_for_device": "Das Zeitauswahlmenü dises Browsers verwenden"
+    "force_native_time_picker_for_device": "Das integrierte Zeitauswahlmenü dises Browsers verwenden"
   },
   "card": {
     "alarm_mode": "Alarmmodus",
