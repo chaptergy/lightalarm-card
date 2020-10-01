@@ -48,7 +48,7 @@ export class LightalarmCard extends LitElement {
   }
 
   @property({ attribute: false }) public hass?: HomeAssistant;
-  @internalProperty() private _config?: LightalarmCardConfig;
+  @internalProperty() private config?: LightalarmCardConfig;
 
   public setConfig(config: LightalarmCardConfig): void {
     if (!config) throw new Error(localize('config.invalid_configuration'));
@@ -67,7 +67,7 @@ export class LightalarmCard extends LitElement {
       });
     } catch (e) {}
 
-    this._config = config;
+    this.config = config;
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -77,52 +77,52 @@ export class LightalarmCard extends LitElement {
       const changedHass: HomeAssistant = changedProps['hass'];
       return (
         !changedHass || // hass is not set
-        changedHass.states[this._config!.time_entity] !== this.hass!.states[this._config!.time_entity] ||
-        changedHass.states[this._config!.mode_entity] !== this.hass!.states[this._config!.mode_entity] ||
-        changedHass.states[this._config!.duration_entity] !== this.hass!.states[this._config!.duration_entity]
+        changedHass.states[this.config!.time_entity] !== this.hass!.states[this.config!.time_entity] ||
+        changedHass.states[this.config!.mode_entity] !== this.hass!.states[this.config!.mode_entity] ||
+        changedHass.states[this.config!.duration_entity] !== this.hass!.states[this.config!.duration_entity]
       );
     }
     return shouldUpdate;
   }
 
   protected render(): TemplateResult | void {
-    if (!this._config || !this.hass) {
+    if (!this.config || !this.hass) {
       return html``;
     }
 
-    const timeStateObj = this.hass.states[this._config.time_entity];
+    const timeStateObj = this.hass.states[this.config.time_entity];
     if (!timeStateObj) {
       return html`
         <hui-warning
-          >${this.hass.localize('config.required_entity_not_found', '%entity%', this._config.time_entity)}</hui-warning
+          >${this.hass.localize('config.required_entity_not_found', '%entity%', this.config.time_entity)}</hui-warning
         >
       `;
     }
 
-    const modeStateObj = this.hass.states[this._config.mode_entity];
+    const modeStateObj = this.hass.states[this.config.mode_entity];
     if (!modeStateObj) {
       return html`
         <hui-warning
-          >${this.hass.localize('config.required_entity_not_found', '%entity%', this._config.mode_entity)}</hui-warning
+          >${this.hass.localize('config.required_entity_not_found', '%entity%', this.config.mode_entity)}</hui-warning
         >
       `;
     }
 
-    const durationStateObj = this.hass.states[this._config.duration_entity];
+    const durationStateObj = this.hass.states[this.config.duration_entity];
     if (!durationStateObj) {
       return html`
         <hui-warning
           >${this.hass.localize(
             'config.required_entity_not_found',
             '%entity%',
-            this._config.duration_entity,
+            this.config.duration_entity,
           )}</hui-warning
         >
       `;
     }
 
     return html`
-      <ha-card .header=${this._config.name} tabindex="0">
+      <ha-card .header=${this.config.name} tabindex="0">
         <div class="lightalarm-wrapper" id="lightalarm-wrapper">
           <div class="alarm-time-and-decorator-wrap">
             <svg viewBox="0 0 24 24" class="alarm-time-decorator">
@@ -445,7 +445,7 @@ export class LightalarmCard extends LitElement {
   }
 
   private _saveTimePickerValue(newTime: string): void {
-    const stateObj = this.hass!.states[this._config!.time_entity];
+    const stateObj = this.hass!.states[this.config!.time_entity];
 
     // Cancel if values invalid
     if (newTime === '') {
@@ -466,7 +466,7 @@ export class LightalarmCard extends LitElement {
     }
   }
   private _saveTimeInputValue(): void {
-    const stateObj = this.hass!.states[this._config!.time_entity];
+    const stateObj = this.hass!.states[this.config!.time_entity];
     const timeInputHour = this.shadowRoot!.getElementById('lightalarm-time-input-hour') as HTMLInputElement;
     const timeInputMinute = this.shadowRoot!.getElementById('lightalarm-time-input-minute') as HTMLInputElement;
     const timeInputHourValue = Number(timeInputHour.value);
@@ -507,7 +507,6 @@ export class LightalarmCard extends LitElement {
    * Clicked on timepicker overlaying the hour part
    */
   private _timePickerLeftClick(): void {
-    console.log('left click');
     this._timePickerClick(true);
   }
 
@@ -515,7 +514,6 @@ export class LightalarmCard extends LitElement {
    * Clicked on timepicker overlaying the minute part
    */
   private _timePickerRightClick(): void {
-    console.log('right click');
     this._timePickerClick(false);
   }
 
@@ -580,7 +578,7 @@ export class LightalarmCard extends LitElement {
   private _selectedModeChanged(ev): void {
     forwardHaptic('light');
     // Selected option will transition to '' before transitioning to new value
-    const stateObj = this.hass!.states[this._config!.mode_entity];
+    const stateObj = this.hass!.states[this.config!.mode_entity];
     if (
       !ev.target!.selectedItem ||
       ev.target.selectedItem.innerText === '' ||
@@ -597,7 +595,7 @@ export class LightalarmCard extends LitElement {
 
   private _selectedDurationValueChanged(): void {
     const durationInputEl = this.shadowRoot!.querySelector<HTMLInputElement>('#duration-input')!;
-    const stateObj = this.hass!.states[this._config!.duration_entity];
+    const stateObj = this.hass!.states[this.config!.duration_entity];
 
     if (durationInputEl.value !== stateObj.state) {
       this.hass!.callService(stateObj.entity_id.split('.', 1)[0], 'set_value', {
