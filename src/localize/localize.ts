@@ -1,9 +1,10 @@
 import * as en from './languages/en.json';
-// import * as de from './languages/de.json';
+import * as nb from './languages/nb.json';
 
 var languages = {
   en: en,
-  // de: de,
+  nb: nb,
+  no: nb,
 };
 
 export function localize(string: string, search: string = '', replace: string = '') {
