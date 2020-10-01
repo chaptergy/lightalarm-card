@@ -1,0 +1,17 @@
+{
+  "config": {
+    "optional": "Optional",
+    "name": "Titel",
+    "time_entity": "Zeit-Entität",
+    "mode_entity": "Modus-Entität",
+    "duration_entity": "Dauer-Entität",
+    "invalid_configuration": "Ungültige Konfiguration",
+    "required_entity_missing": "Die notwendige Entität %entity% ist nicht gesetzt",
+    "required_entity_not_found": "Die notwendige Entität %entity% konnte nicht gefunden werden",
+    "force_native_time_picker_for_device": "Das Zeitauswahlmenü dises Browsers verwenden"
+  },
+  "card": {
+    "alarm_mode": "Alarmmodus",
+    "alarm_duration": "Alarmdauer"
+  }
+}

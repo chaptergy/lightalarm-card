@@ -1,7 +1,9 @@
+import * as de from './languages/de.json';
 import * as en from './languages/en.json';
 import * as nb from './languages/nb.json';
 
 const languages = {
+  de: de,
   en: en,
   nb: nb,
   no: nb,
