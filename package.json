@@ -1,6 +1,6 @@
 {
   "name": "lightalarm-card",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Lovelace Lightalarm Card",
   "keywords": [
     "home-assistant",
@@ -17,7 +17,7 @@
   "dependencies": {
     "custom-card-helpers": "^1.6.3",
     "home-assistant-js-websocket": "^5.1.0",
-    "lit-element": "^2.2.1",
+    "lit-element": "^2.4.0",
     "lit-html": "^1.1.2"
   },
   "devDependencies": {

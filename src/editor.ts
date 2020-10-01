@@ -1,4 +1,13 @@
-import { LitElement, html, customElement, property, TemplateResult, CSSResult, css } from 'lit-element';
+import {
+  LitElement,
+  html,
+  customElement,
+  property,
+  TemplateResult,
+  CSSResult,
+  css,
+  internalProperty,
+} from 'lit-element';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { LightalarmCardConfig } from './types';
@@ -7,7 +16,7 @@ import { localize } from './localize/localize';
 @customElement('lightalarm-card-editor')
 export class LightalarmCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
-  @property({ attribute: false }) private _config?: LightalarmCardConfig;
+  @internalProperty() private _config?: LightalarmCardConfig;
 
   public setConfig(config: LightalarmCardConfig): void {
     this._config = config;
@@ -54,9 +63,12 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
       return html``;
     }
 
-    (window as any).loadCardHelpers().then(helper => {
-      helper.createRowElement({ type: 'input-select-entity' });
-    });
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).loadCardHelpers().then(helper => {
+        helper.createRowElement({ type: 'input-select-entity' });
+      });
+    } catch (e) {}
 
     // You can restrict on domain type
     const time_entities = Object.keys(this.hass.states).filter(

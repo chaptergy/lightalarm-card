@@ -1,4 +1,15 @@
-import { LitElement, html, customElement, property, CSSResult, TemplateResult, css, PropertyValues } from 'lit-element';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  LitElement,
+  html,
+  customElement,
+  property,
+  internalProperty,
+  CSSResult,
+  TemplateResult,
+  css,
+  PropertyValues,
+} from 'lit-element';
 import { repeat } from 'lit-html/directives/repeat';
 import {
   HomeAssistant,
@@ -36,8 +47,8 @@ export class LightalarmCard extends LitElement {
     return {};
   }
 
-  @property() public hass?: HomeAssistant;
-  @property() private config?: LightalarmCardConfig;
+  @property({ attribute: false }) public hass?: HomeAssistant;
+  @internalProperty() private _config?: LightalarmCardConfig;
 
   public setConfig(config: LightalarmCardConfig): void {
     if (!config) throw new Error(localize('config.invalid_configuration'));
@@ -49,11 +60,14 @@ export class LightalarmCard extends LitElement {
     if (!config.duration_entity)
       throw new Error(localize('config.required_entity_missing', '%entity%', localize('config.duration_entity')));
 
-    (window as any).loadCardHelpers().then(helper => {
-      helper.createRowElement({ type: 'input-select-entity' });
-    });
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).loadCardHelpers().then(helper => {
+        helper.createRowElement({ type: 'input-select-entity' });
+      });
+    } catch (e) {}
 
-    this.config = config;
+    this._config = config;
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -63,52 +77,52 @@ export class LightalarmCard extends LitElement {
       const changedHass: HomeAssistant = changedProps['hass'];
       return (
         !changedHass || // hass is not set
-        changedHass.states[this.config!.time_entity] !== this.hass!.states[this.config!.time_entity] ||
-        changedHass.states[this.config!.mode_entity] !== this.hass!.states[this.config!.mode_entity] ||
-        changedHass.states[this.config!.duration_entity] !== this.hass!.states[this.config!.duration_entity]
+        changedHass.states[this._config!.time_entity] !== this.hass!.states[this._config!.time_entity] ||
+        changedHass.states[this._config!.mode_entity] !== this.hass!.states[this._config!.mode_entity] ||
+        changedHass.states[this._config!.duration_entity] !== this.hass!.states[this._config!.duration_entity]
       );
     }
     return shouldUpdate;
   }
 
   protected render(): TemplateResult | void {
-    if (!this.config || !this.hass) {
+    if (!this._config || !this.hass) {
       return html``;
     }
 
-    const timeStateObj = this.hass.states[this.config.time_entity];
+    const timeStateObj = this.hass.states[this._config.time_entity];
     if (!timeStateObj) {
       return html`
         <hui-warning
-          >${this.hass.localize('config.required_entity_not_found', '%entity%', this.config.time_entity)}</hui-warning
+          >${this.hass.localize('config.required_entity_not_found', '%entity%', this._config.time_entity)}</hui-warning
         >
       `;
     }
 
-    const modeStateObj = this.hass.states[this.config.mode_entity];
+    const modeStateObj = this.hass.states[this._config.mode_entity];
     if (!modeStateObj) {
       return html`
         <hui-warning
-          >${this.hass.localize('config.required_entity_not_found', '%entity%', this.config.mode_entity)}</hui-warning
+          >${this.hass.localize('config.required_entity_not_found', '%entity%', this._config.mode_entity)}</hui-warning
         >
       `;
     }
 
-    const durationStateObj = this.hass.states[this.config.duration_entity];
+    const durationStateObj = this.hass.states[this._config.duration_entity];
     if (!durationStateObj) {
       return html`
         <hui-warning
           >${this.hass.localize(
             'config.required_entity_not_found',
             '%entity%',
-            this.config.duration_entity,
+            this._config.duration_entity,
           )}</hui-warning
         >
       `;
     }
 
     return html`
-      <ha-card .header=${this.config.name} tabindex="0">
+      <ha-card .header=${this._config.name} tabindex="0">
         <div class="lightalarm-wrapper" id="lightalarm-wrapper">
           <div class="alarm-time-and-decorator-wrap">
             <svg viewBox="0 0 24 24" class="alarm-time-decorator">
@@ -127,7 +141,7 @@ export class LightalarmCard extends LitElement {
               <input
                 type="time"
                 class="alarm-time-picker alarm-time-picker-left"
-                required="required"
+                required
                 value="${timeStateObj.state === 'unknown'
                   ? '07:00'
                   : ('0' + timeStateObj.attributes.hour).slice(-2) +
@@ -141,7 +155,7 @@ export class LightalarmCard extends LitElement {
               <input
                 type="time"
                 class="alarm-time-picker alarm-time-picker-right"
-                required="required"
+                required
                 value="${timeStateObj.state === 'unknown'
                   ? '07:00'
                   : ('0' + timeStateObj.attributes.hour).slice(-2) +
@@ -155,7 +169,7 @@ export class LightalarmCard extends LitElement {
               <div class="alarm-time-input">
                 <input
                   type="number"
-                  required="required"
+                  required
                   min="0"
                   max="23"
                   value="${timeStateObj.state === 'unknown' ? '07' : ('0' + timeStateObj.attributes.hour).slice(-2)}"
@@ -166,7 +180,7 @@ export class LightalarmCard extends LitElement {
                 /><span>:</span
                 ><input
                   type="number"
-                  required="required"
+                  required
                   min="0"
                   max="59"
                   value="${timeStateObj.state === 'unknown' ? '00' : ('0' + timeStateObj.attributes.minute).slice(-2)}"
@@ -390,7 +404,7 @@ export class LightalarmCard extends LitElement {
     `;
   }
 
-  private _showTimeInputs() {
+  private _showTimeInputs(): void {
     const timeInputWrap = this.shadowRoot!.getElementById('lightalarm-wrapper');
     if (!timeInputWrap || this.timeInputStatus === 'shown') return;
     timeInputWrap.classList.add('show-input');
@@ -430,8 +444,8 @@ export class LightalarmCard extends LitElement {
     this._debounce('saveTimeInputValue', 3000);
   }
 
-  private _saveTimePickerValue(newTime: string) {
-    const stateObj = this.hass!.states[this.config!.time_entity];
+  private _saveTimePickerValue(newTime: string): void {
+    const stateObj = this.hass!.states[this._config!.time_entity];
 
     // Cancel if values invalid
     if (newTime === '') {
@@ -451,8 +465,8 @@ export class LightalarmCard extends LitElement {
       });
     }
   }
-  private _saveTimeInputValue() {
-    const stateObj = this.hass!.states[this.config!.time_entity];
+  private _saveTimeInputValue(): void {
+    const stateObj = this.hass!.states[this._config!.time_entity];
     const timeInputHour = this.shadowRoot!.getElementById('lightalarm-time-input-hour') as HTMLInputElement;
     const timeInputMinute = this.shadowRoot!.getElementById('lightalarm-time-input-minute') as HTMLInputElement;
     const timeInputHourValue = Number(timeInputHour.value);
@@ -492,7 +506,7 @@ export class LightalarmCard extends LitElement {
   /**
    * Clicked on timepicker overlaying the hour part
    */
-  private _timePickerLeftClick() {
+  private _timePickerLeftClick(): void {
     console.log('left click');
     this._timePickerClick(true);
   }
@@ -500,7 +514,7 @@ export class LightalarmCard extends LitElement {
   /**
    * Clicked on timepicker overlaying the minute part
    */
-  private _timePickerRightClick() {
+  private _timePickerRightClick(): void {
     console.log('right click');
     this._timePickerClick(false);
   }
@@ -511,7 +525,7 @@ export class LightalarmCard extends LitElement {
    *
    * @param focusHours Whether to focus the hours input, otherwise focuses minutes
    */
-  private _timePickerClick(focusHours: boolean) {
+  private _timePickerClick(focusHours: boolean): void {
     if (localStorage.getItem('lightalarmCard.forceNativePicker') === 'true') {
       const timeInputWrap = this.shadowRoot!.getElementById('lightalarm-wrapper');
       if (!timeInputWrap) return;
@@ -537,7 +551,7 @@ export class LightalarmCard extends LitElement {
     }
   }
 
-  private _timePickerBlur(ev) {
+  private _timePickerBlur(ev): void {
     if (localStorage.getItem('lightalarmCard.forceNativePicker') === 'true') {
       this._debounce('saveTimePickerValue', 0, true, ev.target.value);
       const timeInputWrap = this.shadowRoot!.getElementById('lightalarm-wrapper');
@@ -550,7 +564,7 @@ export class LightalarmCard extends LitElement {
    * Saves the current data inside the time inputs when they are blurred
    * But do it with a slight delay to allow cancelling them
    */
-  private _timeInputsBlur() {
+  private _timeInputsBlur(): void {
     this.inputBlurTimer = setTimeout(() => {
       this._debounce('saveTimeInputValue', 0, true);
       const timeInputWrap = this.shadowRoot!.getElementById('lightalarm-wrapper');
@@ -566,7 +580,7 @@ export class LightalarmCard extends LitElement {
   private _selectedModeChanged(ev): void {
     forwardHaptic('light');
     // Selected option will transition to '' before transitioning to new value
-    const stateObj = this.hass!.states[this.config!.mode_entity];
+    const stateObj = this.hass!.states[this._config!.mode_entity];
     if (
       !ev.target!.selectedItem ||
       ev.target.selectedItem.innerText === '' ||
@@ -583,7 +597,7 @@ export class LightalarmCard extends LitElement {
 
   private _selectedDurationValueChanged(): void {
     const durationInputEl = this.shadowRoot!.querySelector<HTMLInputElement>('#duration-input')!;
-    const stateObj = this.hass!.states[this.config!.duration_entity];
+    const stateObj = this.hass!.states[this._config!.duration_entity];
 
     if (durationInputEl.value !== stateObj.state) {
       this.hass!.callService(stateObj.entity_id.split('.', 1)[0], 'set_value', {
@@ -596,7 +610,7 @@ export class LightalarmCard extends LitElement {
   /**
    * Move the text cursor to the very end on the inputs value
    */
-  private _moveCursorToEnd(element: HTMLInputElement) {
+  private _moveCursorToEnd(element: HTMLInputElement): void {
     if (!element) return;
     element.focus();
     const val = element.value;
@@ -604,7 +618,12 @@ export class LightalarmCard extends LitElement {
     element.value = val;
   }
 
-  private _debounce(func: 'saveTimeInputValue' | 'saveTimePickerValue', delay, instant = false, newTime = '') {
+  private _debounce(
+    func: 'saveTimeInputValue' | 'saveTimePickerValue',
+    delay: number,
+    instant = false,
+    newTime = '',
+  ): void {
     clearTimeout(this.debounceTimer);
     switch (func) {
       case 'saveTimeInputValue':
