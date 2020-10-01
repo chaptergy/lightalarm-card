@@ -1,0 +1,17 @@
+{
+  "config": {
+    "optional": "Opcjonalny",
+    "name": "Tytuł",
+    "time_entity": "Encja czasu",
+    "mode_entity": "Encja trybu",
+    "duration_entity": "Encja czasu trwania",
+    "invalid_configuration": "Niewłaściwa konfiguracja",
+    "required_entity_missing": "Wymagana encja %entity% nie została skonfigurowana",
+    "required_entity_not_found": "Wymagana encja %entity% nie została znaleziona",
+    "force_native_time_picker_for_device": "Wymuś natywny sposób wyboru czasu w tej przeglądarce"
+  },
+  "card": {
+    "alarm_mode": "Tryb alarmu",
+    "alarm_duration": "Czas trwania alarmu"
+  }
+}
