@@ -33,6 +33,7 @@ resources:
     type: module
 ```
 
+
 ## Options
 
 | Name            | Type   | Requirement  | Description                                  |
@@ -72,15 +73,15 @@ input_number:
     step: 1
 
 input_select:
-  lightalarm_options:
+  lightalarm_mode:
     name: Alarm Mode
     icon: mdi:alarm-plus
     options:
       - 'Off'
       - 'Workdays When Present'
-      - 'Workdays'
       - 'Once Only'
       - 'Every Day'
+	  - 'When Present'
 ```
 
 Then with these entities we can create a new automation which triggers, when all conditions are met.
@@ -95,77 +96,64 @@ But for the following automation to work, you will have to verify, that a `senso
 
 I would also recommend excluding the time from `recorder`, so it doesn't spam your history. Check out [the recorder integration page](https://www.home-assistant.io/integrations/recorder/) for more information.
 
-Add this to your `automation:` section or your `automations.yaml`. What it does, will be explained below.
+Add the following automation through the user interface by going to Configuration > Automations > Add Automation (and switch to YAML mode in the upper right three dots):
 
 ```yaml
-- id: lightalarm
-  alias: Lightalarm
-  trigger:
-    platform: template
-    value_template: "{% set currentTimeInMinutes = ((states('sensor.time')[:2] |
-      float) * 60) + (states('sensor.time')[3:5] | float) - (states('sensor.time')
-      | float) %} {% set alarmTimeInMinutes = ((states('input_datetime.lightalarm_time')[:2]
-      | float) * 60) + (states('input_datetime.lightalarm_time')[3:5] | float) -
-      (states('input_number.lightalarm_duration') | float) %} {{ currentTimeInMinutes
-      == alarmTimeInMinutes }}"
-
-  condition:
-    condition: or
+alias: Lightalarm
+description: ''
+trigger:
+  - platform: time
+    at: input_datetime.lightalarm_time
+condition:
+  - condition: or
     conditions:
       - condition: state
-        entity_id: input_select.lightalarm_options
-        state: 'Every Day'
+        entity_id: input_select.lightalarm_mode
+        state: Every Day
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: input_select.lightalarm_mode
+            state: When Present
+          - condition: state
+            entity_id: person.chaptergy
+            state: home
       - condition: state
-        entity_id: input_select.lightalarm_options
-        state: 'Once Only'
+        entity_id: input_select.lightalarm_mode
+        state: Once Only
       - condition: and
         conditions:
           - condition: state
-            entity_id: input_select.lightalarm_options
-            state: 'Workdays'
-          - condition: template
-            value_template: '{{ now().weekday() < 5 }}'
-      - condition: and
-        conditions:
+            entity_id: input_select.lightalarm_mode
+            state: Workdays When Present
+          - condition: time
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
           - condition: state
-            entity_id: input_select.lightalarm_options
-            state: 'Workdays When Present'
-          - condition: template
-            value_template: '{{ now().weekday() < 5 }}'
-          - condition: or
-            conditions:
-              - condition: state
-                entity_id: person.chaptergy
-                state: home
-              - condition: state
-                entity_id: person.other_person
-                state: home
-
-  action:
+            entity_id: person.chaptergy
+            state: home
+action:
+  - data_template:
+      duration: '{{ states(''input_number.lightalarm_duration'') }}'
     service: script.trigger_lightalarm
+mode: single
 ```
 
-The `value_template` value is kind of ugly, however all it does, is converting both the current time als well as the lightalarm time to minutes, subtracts the lightalarm duration from the lightalarm time, and checks if it is equal to the current time.
-If it is, the other conditions will be checked. If any condition fails, the action will not be executed. Here is a description of what the condition is:
-
-```
-[ Is the mode "Every Day"? ]
-OR
-[ Is the mode "Once Only"? ]
-OR
-[ Is the mode "Workdays" AND is the current weekday between 0 and 4 (monday-friday)? ]
-OR
-[ Is the mode "Workdays When Present" AND is the current weekday between 0 and 4 (monday-friday) AND is any person home? ]
-```
-
-If you want to get even fancier, you could replace the `{{ now().weekday() < 5 }}` condition with a [workday sensor](https://www.home-assistant.io/integrations/workday/) to include holidays.
-When the condition succeeds, we run a script `script.trigger_lightalarm` which we'll also need to create now. So add this to your `script:` section or your `scripts.yaml`.
+If you want to get even fancier, you could replace the `{{ now().weekday() < 5 }}` condition with a [workday sensor](https://www.home-assistant.io/integrations/workday/) to not trigger the automation on holidays.
+When the condition succeeds, we run a script `script.trigger_lightalarm` which we'll also need to create now. So switch to the Scripts tab and add the following YAML:
 
 ```yaml
-trigger_lightalarm:
-  alias: Trigger the lightalarm
-  sequence:
-    - service: light.turn_on
+alias: Trigger the lightalarm
+fields:
+  duration:
+    description: Number of minutes for the light alarm transition period
+    example: 20
+sequence:
+  - service: light.turn_on
       data_template:
         entity_id: light.bedside_lamp
         rgb_color:
@@ -173,15 +161,16 @@ trigger_lightalarm:
           - 91
           - 36
         brightness: 255
-        transition: "{{ states('input_number.lightalarm_duration') | float | multiply(60) }}"
-    - event: lightalarm_triggered
-    - condition: state
-      entity_id: input_select.lightalarm_options
-      state: Once Only
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.lightalarm_options
-        option: Off
+        transition: "{{ duration | float | multiply(60) }}"
+  - event: lightalarm_triggered
+  - condition: state
+    entity_id: input_select.lightalarm_mode
+    state: Once Only
+  - service: input_select.select_option
+    data:
+      option: 'Off'
+    entity_id: input_select.lightalarm_mode
+mode: single
 ```
 
 This script then switches on the lap to full brightness, while the transition property will make it fade in slowly. The duration is converted from minutes to seconds, because the transition expects the number of seconds it should take to transition.
