@@ -178,3 +178,12 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     `;
   }
 }
+
+const wdw = window as any;
+wdw.customCards = wdw.customCards || [];
+wdw.customCards.push({
+  type: 'lightalarm-card',
+  name: 'Lightalarm Card',
+  preview: false,
+  description: 'Coordinate light alarm settings in a beautiful way',
+});
