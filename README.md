@@ -33,7 +33,6 @@ resources:
     type: module
 ```
 
-
 ## Options
 
 | Name            | Type   | Requirement  | Description                                  |
@@ -54,7 +53,7 @@ In the visual editor of the lovalace card, you have an additional option to _For
 
 If you do not have your custom lightalarm logic, here is how I implemented mine. Your lamp will need to support the `transition` property for this to work.
 
-Fist you'll need to add three new entities into your `configuration.yaml`:
+Fist you'll need to add four new entities into your `configuration.yaml`:
 (If you set an `initial` for the inputs, it will be set to this value on every Home Assistant restart!)
 
 ```yaml
@@ -81,7 +80,14 @@ input_select:
       - 'Workdays When Present'
       - 'Once Only'
       - 'Every Day'
-	  - 'When Present'
+      - 'When Present'
+
+sensor:
+  - platform: template
+    sensors:
+      lightalarm_time_start:
+        value_template: >-
+          {{ (strptime(states("input_datetime.lightalarm_time"), "%H:%M:%S") - timedelta(minutes=(states("input_number.lightalarm_duration") | int) )).strftime("%H:%M") }}
 ```
 
 Then with these entities we can create a new automation which triggers, when all conditions are met.
@@ -102,8 +108,8 @@ Add the following automation through the user interface by going to Configuratio
 alias: Lightalarm
 description: ''
 trigger:
-  - platform: time
-    at: input_datetime.lightalarm_time
+  - platform: template
+    value_template: "{{ states('sensor.time') == states('sensor.lightalarm_time_start') }}"
 condition:
   - condition: or
     conditions:
@@ -138,7 +144,7 @@ condition:
             state: home
 action:
   - data_template:
-      duration: '{{ states(''input_number.lightalarm_duration'') }}'
+      duration: "{{ states('input_number.lightalarm_duration') }}"
     service: script.trigger_lightalarm
 mode: single
 ```
