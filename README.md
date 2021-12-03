@@ -160,14 +160,14 @@ fields:
     example: 20
 sequence:
   - service: light.turn_on
-      data_template:
-        entity_id: light.bedside_lamp
-        rgb_color:
-          - 255
-          - 91
-          - 36
-        brightness: 255
-        transition: "{{ duration | float | multiply(60) }}"
+    data_template:
+      entity_id: light.bedside_lamp
+      rgb_color:
+        - 255
+        - 91
+        - 36
+      brightness: 255
+      transition: "{{ duration | float | multiply(60) }}"
   - event: lightalarm_triggered
   - condition: state
     entity_id: input_select.lightalarm_mode
