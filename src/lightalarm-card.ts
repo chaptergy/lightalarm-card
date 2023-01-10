@@ -62,9 +62,7 @@ export class LightalarmCard extends LitElement {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).loadCardHelpers().then(helper => {
-        helper.createRowElement({ type: 'input-select-entity' });
-      });
+      (window as any).loadCardHelpers();
     } catch (e) {}
 
     this.config = config;

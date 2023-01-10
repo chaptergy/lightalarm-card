@@ -65,9 +65,7 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).loadCardHelpers().then(helper => {
-        helper.createRowElement({ type: 'input-select-entity' });
-      });
+      (window as any).loadCardHelpers();
     } catch (e) {}
 
     // You can restrict on domain type
@@ -83,55 +81,56 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
 
     return html`
       <div class="card-config">
-        <paper-input
+        <ha-textfield
           label="${localize('config.name')} (${localize('config.optional')})"
           .value=${this._title}
           .configValue=${'name'}
-          @value-changed=${this._valueChanged}
-        ></paper-input>
+          @input=${this._valueChanged}
+          class="padding-bottom full-width"
+        ></ha-textfield>
 
         <div class="indent">
-          <paper-dropdown-menu
+          <ha-select
             label="${localize('config.time_entity')}"
-            @value-changed=${this._valueChanged}
+            @selected=${this._valueChanged}
             .configValue=${'time_entity'}
+            .value=${this._time_entity}
+            class="padding-bottom full-width"
           >
-            <paper-listbox slot="dropdown-content" .selected=${time_entities.indexOf(this._time_entity)}>
-              ${time_entities.map(entity => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
+            ${time_entities.map(entity => {
+              return html`
+                <mwc-list-item .value="${entity}">${entity}</mwc-list-item>
+              `;
+            })}
+          </ha-select>
           <br />
-          <paper-dropdown-menu
+          <ha-select
             label="${localize('config.mode_entity')}"
-            @value-changed=${this._valueChanged}
+            @selected=${this._valueChanged}
             .configValue=${'mode_entity'}
+            .value=${this._mode_entity}
+            class="padding-bottom full-width"
           >
-            <paper-listbox slot="dropdown-content" .selected=${mode_entities.indexOf(this._mode_entity)}>
-              ${mode_entities.map(entity => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
+            ${mode_entities.map(entity => {
+              return html`
+                <mwc-list-item .value="${entity}">${entity}</mwc-list-item>
+              `;
+            })}
+          </ha-select>
           <br />
-          <paper-dropdown-menu
+          <ha-select
             label="${localize('config.duration_entity')}"
-            @value-changed=${this._valueChanged}
+            @selected=${this._valueChanged}
             .configValue=${'duration_entity'}
+            .value=${this._duration_entity}
+            class="padding-bottom full-width"
           >
-            <paper-listbox slot="dropdown-content" .selected=${duration_entities.indexOf(this._duration_entity)}>
-              ${duration_entities.map(entity => {
-                return html`
-                  <paper-item>${entity}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
+            ${duration_entities.map(entity => {
+              return html`
+                <mwc-list-item .value="${entity}">${entity}</mwc-list-item>
+              `;
+            })}
+          </ha-select>
         </div>
         <br />
         <ha-switch
@@ -155,8 +154,6 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     if (target.configValue) {
       if (target.configValue === 'force_native_time_picker_for_device') {
         localStorage.setItem('lightalarmCard.forceNativePicker', target.checked ? 'true' : 'false');
-      } else if (target.value === '') {
-        delete this._config[target.configValue];
       } else {
         this._config = {
           ...this._config,
@@ -169,8 +166,11 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
 
   static get styles(): CSSResult {
     return css`
-      .indent {
-        padding-left: 40px;
+      .padding-bottom {
+        padding-bottom: 8px;
+      }
+      .full-width {
+        width: 100%;
       }
       .switch-label {
         padding-left: 10px;
