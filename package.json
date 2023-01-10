@@ -1,6 +1,6 @@
 {
   "name": "lightalarm-card",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "Lovelace Lightalarm Card",
   "keywords": [
     "home-assistant",
@@ -15,6 +15,7 @@
   "author": "chaptergy",
   "license": "MIT",
   "dependencies": {
+    "@polymer/paper-listbox": "^3.0.1",
     "custom-card-helpers": "^1.6.3",
     "home-assistant-js-websocket": "^5.1.0",
     "lit-element": "^2.4.0",

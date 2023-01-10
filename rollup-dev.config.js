@@ -18,7 +18,7 @@ export default [
   {
     input: 'src/lightalarm-card.ts',
     output: {
-      dir: '/config/www',
+      dir: 'dist-dev',
       format: 'es',
     },
     plugins: [...plugins],

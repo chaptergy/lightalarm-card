@@ -194,25 +194,21 @@ export class LightalarmCard extends LitElement {
           </div>
 
           <div class="alarm-properties-wrap">
-            <paper-dropdown-menu
+            <ha-select
+              naturalMenuWidth
               class="alarm-mode"
-              selected-item-label="${modeStateObj.state}"
-              @selected-item-label-changed="${this._selectedModeChanged}"
               label="${modeStateObj.attributes.friendly_name || localize('card.alarm_mode')}"
+              .value=${modeStateObj.state}
+              @selected="${this._selectedModeChanged}"
             >
-              <paper-listbox
-                slot="dropdown-content"
-                selected="${modeStateObj.attributes.options.indexOf(modeStateObj.state)}"
-              >
-                ${repeat(
-                  modeStateObj.attributes.options,
-                  option =>
-                    html`
-                      <paper-item>${option}</paper-item>
-                    `,
-                )}
-              </paper-listbox>
-            </paper-dropdown-menu>
+              ${repeat(
+                modeStateObj.attributes.options,
+                option =>
+                  html`
+                    <mwc-list-item .value=${option}>${option}</mwc-list-item>
+                  `,
+              )}
+            </ha-select>
 
             <div class="alarm-duration">
               <label slot="label" for="duration-input"
@@ -377,7 +373,7 @@ export class LightalarmCard extends LitElement {
       }
 
       .lightalarm-wrapper .alarm-mode {
-        margin-bottom: 8px;
+        margin: 8px 0;
       }
 
       .lightalarm-wrapper .alarm-duration label {
@@ -579,16 +575,12 @@ export class LightalarmCard extends LitElement {
     forwardHaptic('light');
     // Selected option will transition to '' before transitioning to new value
     const stateObj = this.hass!.states[this.config!.mode_entity];
-    if (
-      !ev.target!.selectedItem ||
-      ev.target.selectedItem.innerText === '' ||
-      ev.target.selectedItem.innerText === stateObj.state
-    ) {
+    if (!ev.target!.value || ev.target.value === '' || ev.target.value === stateObj.state) {
       return;
     }
 
     this.hass!.callService('input_select', 'select_option', {
-      option: ev.target.selectedItem.innerText,
+      option: ev.target.value,
       entity_id: stateObj.entity_id,
     });
   }
