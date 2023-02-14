@@ -35,13 +35,14 @@ resources:
 
 ## Options
 
-| Name            | Type   | Requirement  | Description                                  |
-| --------------- | ------ | ------------ | -------------------------------------------- |
-| type            | string | **Required** | `custom:lightalarm-card`                     |
-| name            | string | Optional     | Card title                                   |
-| time_entity     | string | **Required** | `input_datetime` entity to select alarm time |
-| mode_entity     | string | **Required** | `input_select` entity to select alarm mode   |
-| duration_entity | string | **Required** | `input_number` entity to set fade duration   |
+| Name                 | Type   | Requirement  | Description                                  |
+| -------------------- | ------ | ------------ | -------------------------------------------- |
+| type                 | string | **Required** | `custom:lightalarm-card`                     |
+| name                 | string | Optional     | Card title                                   |
+| time_entity          | string | **Required** | `input_datetime` entity to select alarm time |
+| override_time_entity | string | optional     | `sensor` entity to override the alarm time   |
+| mode_entity          | string | **Required** | `input_select` entity to select alarm mode   |
+| duration_entity      | string | **Required** | `input_number` entity to set fade duration   |
 
 ## Force Native Timepicker
 
@@ -167,7 +168,7 @@ sequence:
         - 91
         - 36
       brightness: 255
-      transition: "{{ duration | float | multiply(60) }}"
+      transition: '{{ duration | float | multiply(60) }}'
   - event: lightalarm_triggered
   - condition: state
     entity_id: input_select.lightalarm_mode
@@ -183,3 +184,30 @@ This script then switches on the lap to full brightness, while the transition pr
 Then a custom event `lightalarm_triggered` is fired, so we could create more automations listening for this event, like the bathroom heater switching on. You can remove this line if you do not plan on triggering anything else.
 
 Now the last thing to check is if the mode was set to `Once Only` and if it was, set it to `Off`. A condition in a script exits the script if the condition fails, and the following things are only executed if it succeeds.
+
+As a final touch you can also set your phones alarm time to override the manual alarm time. You can create a sensor which has the automatic alarm time, which is either your phones next alarm if available, otherwise the manual alarm time.
+
+```yml
+template:
+  - trigger:
+    - platform: time_pattern
+      minutes: 0
+    - platform: state
+      entity_id:
+        - sensor.app_next_alarm
+        - input_datetime.lightalarm_time
+    - platform: homeassistant
+      event: start
+    sensor:
+      - name: Automatic Lightalarm Time
+        unique_id: "automatic_lightalarm_time"
+        state: >-
+          {% set nextAlarm = states("sensor.app_next_alarm") | as_datetime %}
+          {% if nextAlarm != None and nextAlarm - now() < timedelta(hours=16) %}
+          {{ (nextAlarm | as_local).strftime("%H:%M:%S") }}
+          {% else %}
+          {{ states("input_datetime.lightalarm_time") }}
+          {% endif %}
+```
+
+You can use this entity as the override entity in your card, and make sure to update the other template sensor (`lightalarm_time_start`) to use this value instead of the manual value.

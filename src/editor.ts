@@ -38,6 +38,14 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
     return '';
   }
 
+  get _override_time_entity(): string {
+    if (this._config) {
+      return this._config.override_time_entity || '';
+    }
+
+    return '';
+  }
+
   get _mode_entity(): string {
     if (this._config) {
       return this._config.mode_entity || '';
@@ -70,13 +78,16 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
 
     // You can restrict on domain type
     const time_entities = Object.keys(this.hass.states).filter(
-      eid => eid.substr(0, eid.indexOf('.')) === 'input_datetime',
+      eid => eid.substring(0, eid.indexOf('.')) === 'input_datetime',
+    );
+    const override_time_entities = Object.keys(this.hass.states).filter(
+      eid => eid.substring(0, eid.indexOf('.')) === 'sensor',
     );
     const mode_entities = Object.keys(this.hass.states).filter(
-      eid => eid.substr(0, eid.indexOf('.')) === 'input_select',
+      eid => eid.substring(0, eid.indexOf('.')) === 'input_select',
     );
     const duration_entities = Object.keys(this.hass.states).filter(
-      eid => eid.substr(0, eid.indexOf('.')) === 'input_number',
+      eid => eid.substring(0, eid.indexOf('.')) === 'input_number',
     );
 
     return html`
@@ -98,6 +109,20 @@ export class LightalarmCardEditor extends LitElement implements LovelaceCardEdit
             class="padding-bottom full-width"
           >
             ${time_entities.map(entity => {
+              return html`
+                <mwc-list-item .value="${entity}">${entity}</mwc-list-item>
+              `;
+            })}
+          </ha-select>
+          <br />
+          <ha-select
+            label="${localize('config.override_time_entity')}"
+            @selected=${this._valueChanged}
+            .configValue=${'override_time_entity'}
+            .value=${this._override_time_entity}
+            class="padding-bottom full-width"
+          >
+            ${override_time_entities.map(entity => {
               return html`
                 <mwc-list-item .value="${entity}">${entity}</mwc-list-item>
               `;

@@ -119,10 +119,19 @@ export class LightalarmCard extends LitElement {
       `;
     }
 
+    const overrideTime = this.config.override_time_entity
+      ? this.hass.states[this.config.override_time_entity]?.state
+      : undefined;
+    const hasOverride =
+      overrideTime &&
+      overrideTime !== 'unknown' &&
+      overrideTime !== 'unavailable' &&
+      timeStateObj.state !== overrideTime;
+
     return html`
       <ha-card .header=${this.config.name} tabindex="0">
         <div class="lightalarm-wrapper" id="lightalarm-wrapper">
-          <div class="alarm-time-and-decorator-wrap">
+          <div class="alarm-time-and-decorator-wrap${hasOverride ? ' has-override' : ''}">
             <svg viewBox="0 0 24 24" class="alarm-time-decorator">
               <path
                 d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z"
@@ -131,7 +140,7 @@ export class LightalarmCard extends LitElement {
             <div class="alarm-time-wrap">
               <span class="alarm-time-display">
                 ${timeStateObj.state === 'unknown'
-                  ? '07:00'
+                  ? '--:--'
                   : ('0' + timeStateObj.attributes.hour).slice(-2) +
                     ':' +
                     ('0' + timeStateObj.attributes.minute).slice(-2)}
@@ -189,6 +198,12 @@ export class LightalarmCard extends LitElement {
                 />
               </div>
             </div>
+            ${hasOverride &&
+              html`
+                <div class="alarm-time-override">
+                  <span>${overrideTime?.substring(0, 5)}</span>
+                </div>
+              `}
           </div>
 
           <div class="alarm-properties-wrap">
@@ -278,6 +293,12 @@ export class LightalarmCard extends LitElement {
         opacity: 0.07;
       }
 
+      .lightalarm-wrapper .alarm-time-override {
+        text-align: center;
+        position: relative;
+        top: 35%;
+        font-size: 1.3rem;
+      }
       .lightalarm-wrapper .alarm-time-wrap {
         position: relative;
         font-size: 1.4rem;
@@ -286,6 +307,12 @@ export class LightalarmCard extends LitElement {
         z-index: 2;
         top: 50%;
         margin-top: -0.2em;
+      }
+      .lightalarm-wrapper .has-override .alarm-time-wrap {
+        top: 64%;
+        font-size: 0.9rem;
+        text-decoration: line-through;
+        color: var(--secondary-text-color);
       }
       .lightalarm-wrapper .alarm-time-display {
         box-sizing: border-box;

@@ -3,6 +3,7 @@
     "optional": "Optional",
     "name": "Titel",
     "time_entity": "Zeit-Entität",
+    "override_time_entity": "Zeit-Überschreibungs-Entität",
     "mode_entity": "Modus-Entität",
     "duration_entity": "Dauer-Entität",
     "invalid_configuration": "Ungültige Konfiguration",

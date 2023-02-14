@@ -3,6 +3,7 @@
     "optional": "Optional",
     "name": "Title",
     "time_entity": "Time Entity",
+    "override_time_entity": "Time Override Entity",
     "mode_entity": "Mode Entity",
     "duration_entity": "Duration Entity",
     "invalid_configuration": "Invalid configuration",
