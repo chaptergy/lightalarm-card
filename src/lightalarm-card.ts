@@ -198,12 +198,13 @@ export class LightalarmCard extends LitElement {
                 />
               </div>
             </div>
-            ${hasOverride &&
-              html`
-                <div class="alarm-time-override">
-                  <span>${overrideTime?.substring(0, 5)}</span>
-                </div>
-              `}
+            ${hasOverride
+              ? html`
+                  <div class="alarm-time-override">
+                    <span>${overrideTime?.substring(0, 5)}</span>
+                  </div>
+                `
+              : ''}
           </div>
 
           <div class="alarm-properties-wrap">
